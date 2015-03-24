@@ -106,7 +106,7 @@ class AlchemyAPI
     private $mapServices = [
         'combined' => 'CombinedData',
         'concepts' => 'RankedConcepts',
-        'entities' => 'RankedNamedEntit',
+        'entities' => 'RankedNamedEntities',
         'feeds' => 'FeedLinks',
         'image_keywords' => 'RankedImageKeywords',
         'keywords' => 'RankedKeywords',
