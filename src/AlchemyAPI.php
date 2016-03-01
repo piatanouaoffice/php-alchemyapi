@@ -5,7 +5,7 @@ namespace AlchemyAPI;
 class AlchemyAPI
 {
 
-    const URI = 'access.alchemyapi.com/calls';
+    const URI = 'gateway-a.watsonplatform.net';
 
     public $client;
 
