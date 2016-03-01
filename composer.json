@@ -1,5 +1,5 @@
 {
-    "name": "jadb/alchemyapi"
+    "name": "piatanoua/alchemyapi"
     , "description": "Natural Language Processing using AlchemyAPI"
     , "type": "library"
     , "keywords": ["alchemy", "nlp", "natural language process", "alchemyapi"]
@@ -14,7 +14,6 @@
     ]
     , "require": {
         "php": ">=5.5"
-        , "guzzlehttp/guzzle": "4.*"
     }
     , "require-dev": {
         "phpunit/phpunit": "4.0"
