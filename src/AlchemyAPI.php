@@ -5,7 +5,7 @@ namespace AlchemyAPI;
 class AlchemyAPI
 {
 
-    const URI = 'gateway-a.watsonplatform.net';
+    const URI = 'gateway-a.watsonplatform.net/calls';
 
     public $client;
 
@@ -130,94 +130,116 @@ class AlchemyAPI
     ];
 
     public function __construct($key, $ssl = true)
-    {
-        $this->key = $key;
-        $this->ssl = $ssl;
-    }
+        {
+            $this->key = $key;
+            $this->ssl = $ssl;
+        }
 
     public function __call($method, $args)
-    {
-        if (count($args) < 3) {
-            $args[] = [];
+        {
+            if (count($args) < 3)
+                {
+                    $args[] = [];
+                }
+
+            list($flavor, $data, $params) = $args;
+
+            if (!in_array($method, $this->services))
+                {
+                    throw new \Exception(sprintf('Invalid service (%s)', $method));
+                }
+
+            if (!$this->accepts($method, $flavor))
+                {
+                    throw new \Exception(sprintf('Invalid flavor (%s) for service (%s)', $flavor, $method));
+                }
+
+            $endpoint = $this->getServiceEndpoint($method, $flavor);
+            $params = $params + ['apikey' => $this->key, 'outputMode' => 'json'];
+
+            if (!empty($this->defaults[$method]))
+                {
+                    $params += $this->defaults[$method];
+                }
+
+            if ('image' != $flavor)
+                {
+                    $params[$flavor] = $data;
+                }
+            else
+                {
+                    $endpoint .= '?' . http_build_query($params);
+                    $params = $data;
+                }
+
+            $this->rawResponse = $this->query($endpoint, $params);
+            $response = $this->rawResponse;
+
+            if ('ERROR' == $response['status'])
+                {
+                    throw new \Exception($response['statusInfo']);
+                }
+
+            return $response;
         }
 
-        list($flavor, $data, $params) = $args;
+    public function accepts($service, $flavor)
+        {
+            if (empty($this->acceptedFlavors[$service]))
+                {
+                    $this->acceptedFlavors[$service] = ['url', 'text', 'html'];
+                }
 
-        if (!in_array($method, $this->services)) {
-            throw new \Exception(sprintf('Invalid service (%s)', $method));
+            return in_array($flavor, $this->acceptedFlavors[$service]);
         }
-
-        if (!$this->accepts($method, $flavor)) {
-            throw new \Exception(sprintf('Invalid flavor (%s) for service (%s)', $flavor, $method));
-        }
-
-        $endpoint = $this->getServiceEndpoint($method, $flavor);
-        $params = $params + ['apikey' => $this->key, 'outputMode' => 'json'];
-
-        if (!empty($this->defaults[$method])) {
-            $params += $this->defaults[$method];
-        }
-
-        if ('image' != $flavor) {
-            $params[$flavor] = $data;
-        } else {
-            $endpoint .= '?' . http_build_query($params);
-            $params = $data;
-        }
-
-        $this->rawResponse = $this->query($endpoint, $params);
-        $response = $this->rawResponse->json();
-
-        if ('ERROR' == $response['status']) {
-            throw new \Exception($response['statusInfo']);
-        }
-
-        return $response;
-    }
-
-    public function accepts($service, $flavor) {
-        if (empty($this->acceptedFlavors[$service])) {
-            $this->acceptedFlavors[$service] = ['url', 'text', 'html'];
-        }
-
-        return in_array($flavor, $this->acceptedFlavors[$service]);
-    }
 
     public function disableSsl()
-    {
-        $this->ssl = false;
-        return $this;
-    }
+        {
+            $this->ssl = false;
+            return $this;
+        }
 
     public function enableSsl()
-    {
-        $this->ssl = true;
-        return $this;
-    }
+        {
+            $this->ssl = true;
+            return $this;
+        }
 
     public function getServiceEndpoint($service, $flavor)
-    {
-        if (!empty($this->mapServices[$service])) {
-            $service = $this->mapServices[$service];
-        }
+        {
+            if (!empty($this->mapServices[$service]))
+                {
+                    $service = $this->mapServices[$service];
+                }
 
-        if (in_array($flavor, ['html', 'url'])) {
-            $flavor = strtoupper($flavor);
-        }
+            if (in_array($flavor, ['html', 'url']))
+                {
+                    $flavor = strtoupper($flavor);
+                }
 
-        return sprintf(
-            'http%s://%s/%s/%sGet%s',
-            $this->ssl ? 's' : null,
-            self::URI,
-            strtolower($flavor),
-            ucfirst($flavor),
-            $service
-        );
-    }
+            return sprintf(
+                'http%s://%s/%s/%sGet%s',
+                $this->ssl ? 's' : null,
+                self::URI,
+                strtolower($flavor),
+                ucfirst($flavor),
+                $service
+            );
+        }
 
     protected function query($endpoint, $body)
-    {
-        return \GuzzleHttp\post($endpoint, compact('body'));
-    }
+        {
+            $options = [
+                'http' => [
+                    'header' => "Content-type: application/x-www-form-urlencoded\r\n",
+                    'method' => 'POST',
+                    'content' => http_build_query($body),
+                ],
+            ];
+            $context = stream_context_create($options);
+            $result = json_decode(file_get_contents($endpoint, false, $context), true);
+
+            return $result;
+        }
 
 }
