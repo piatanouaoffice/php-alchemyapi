@@ -1,32 +1,37 @@
 {
-    "name": "piatanoua/alchemyapi"
-    , "description": "Natural Language Processing using AlchemyAPI"
-    , "type": "library"
-    , "keywords": ["alchemy", "nlp", "natural language process", "alchemyapi"]
-    , "license": "MIT"
-    , "homepage": "https://github.com/jadb/php-alchemyapi"
-    , "authors": [
-        {
-            "name": "Jad Bitar"
-            , "homepage": "http://jadb.io"
-            , "role": "Author"
-        }
-    ]
-    , "require": {
-        "php": ">=5.5",
-        "guzzle/http": "^3.6"
+  "name": "piatanoua/alchemyapi",
+  "description": "Natural Language Processing using AlchemyAPI",
+  "type": "library",
+  "keywords": [
+    "alchemy",
+    "nlp",
+    "natural language process",
+    "alchemyapi"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/piatanouaoffice/php-alchemyapi",
+  "authors": [
+    {
+      "name": "Jad Bitar",
+      "homepage": "http://jadb.io",
+      "role": "Author"
+    },
+    {
+      "name": "Dmitry Konovenschi",
+      "role": "v1.1 Author"
     }
-    , "require-dev": {
-        "phpunit/phpunit": "4.0"
+  ],
+  "require": {
+    "php": ">=5.5"
+  },
+  "autoload": {
+    "psr-4": {
+      "AlchemyAPI\\": "src"
     }
-    , "autoload": {
-        "psr-4": {
-            "AlchemyAPI\\": "src"
-        }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "AlchemyAPI\\Test\\": "tests"
     }
-    , "autoload-dev": {
-        "psr-4": {
-            "AlchemyAPI\\Test\\": "tests"
-        }
-    }
+  }
 }
